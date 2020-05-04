@@ -6,13 +6,20 @@ class BookCommentsController < ApplicationController
     	@book_comment = @book.book_comments.new(book_comment_params)
     	@book_comment.user_id = current_user.id
     	@book_comment.save
-    	render :index
+    	if @book_comment.save
+      		flash[:success] = "Comment was successfully created."
+    	else
+      		@book_comments = BookComment.where(id: @book)
+    	end
 	end
 
 	def destroy
 	    @book_comment = BookComment.find(params[:book_id])
+	    @book = @book_comment.book
+	    if @book_comment.user != current_user
+      		redirect_to request.referer
+    	end
 	    @book_comment.destroy
-	    render :index
  	end
 
 	private
